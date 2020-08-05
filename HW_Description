@@ -1,0 +1,301 @@
+CSC 407: Computer Systems II: 2019 Fall
+Assignment #1
+Last Modified 2019 September 18
+
+Purpose:
+To go over:
+Compiler optimizations
+Program profiling (timing)
+Header files
+Linking and object file layout
+Computing
+Please ssh into 140.192.36.184, 140.192.36.185, 140.192.36.186, 140.192.36.187 or use your own Linux machine.
+
+Please copy-and-paste the following files (0 Points):
+bubbleSort.c
+/*--------------------------------------------------------------------------*
+ *----									----*
+ *----		bubbleSort.c						----*
+ *----									----*
+ *----	    This file defines a function for sorting integers with the	----*
+ *----	bubble-sort algorithm.						----*
+ *----									----*
+ *----	----	----	----	----	----	----	----	----	----*
+ *----									----*
+ *----	Version 1.0					Joseph Phillips	----*
+ *----									----*
+ *--------------------------------------------------------------------------*/
+
+#include	"sortHeader.h"
+
+//  PURPOSE:  To sort the 'arrayLen' integers in array 'array[]' in ascending
+//	order according to the bubble-sort algorithm.  No return value.
+void		bubbleSort	(int		arrayLen,
+				 int*		array
+				)
+{
+  //  I.  Application validity check:
+
+  //  II.  Sort 'array[]':
+  int	haveExchanged;
+  //int	arrayLenMinusOne	= arrayLen-1;
+
+  //  II.A.  Each iteration redoes the inner loop while the inner loop
+  //  	     reported that it exchanged at least one adjacent pair:
+  do
+  {
+    //  II.A.1.  Note that have not exchanged any pairs yet:
+    haveExchanged	= 0;
+
+    //  II.A.2.  Go thru all 'array[]' and exchange any pairs that are
+    //		 improperly ordered:
+    int	index;
+
+    for  (index = 0;  index < arrayLen-1;  index++)
+      if  (array[index] > array[index+1])
+      {
+	exchange(array,index,index+1);
+	haveExchanged	= 1;
+      }
+
+  }
+  while  (haveExchanged);
+
+  //  III.  Finished:
+}
+	  
+insertionSort.c
+/*--------------------------------------------------------------------------*
+ *----									----*
+ *----		insertionSort.c						----*
+ *----									----*
+ *----	    This file defines a function for sorting integers with the	----*
+ *----	insertion-sort algorithm.					----*
+ *----									----*
+ *----	----	----	----	----	----	----	----	----	----*
+ *----									----*
+ *----	Version 1.0					Joseph Phillips	----*
+ *----									----*
+ *--------------------------------------------------------------------------*/
+
+#include	"sortHeader.h"
+
+//  PURPOSE:  To sort the 'arrayLen' integers in array 'array[]' in ascending
+//	order according to the insertion-sort algorithm.  No return value.
+void		insertionSort	(int		arrayLen,
+				 int*		array
+				)
+{
+  //  I.  Application validity check:
+
+  //  II.  Sort 'array[]':
+  //int	arrayLenMinusOne	= arrayLen-1;
+
+  //  II.A.  Each iteration finds the smallest number from the remaining
+  // 	     (upper) portion of the array and places it at 'outerIndex':
+  int	innerIndex;
+  int	outerIndex;
+
+  for  (outerIndex = 0;  outerIndex < arrayLen-1;  outerIndex++)
+    for  (innerIndex = outerIndex+1;  innerIndex < arrayLen;  innerIndex++)
+      if  (array[outerIndex] > array[innerIndex])
+	exchange(array,outerIndex,innerIndex);
+
+  //  III.  Finished:
+}
+	  
+sortProg.c
+/*--------------------------------------------------------------------------*
+ *----									----*
+ *----		sortProg.c						----*
+ *----									----*
+ *----	    This file defines high-level and low-level functions for	----*
+ *----	sorting an array of integers.					----*
+ *----									----*
+ *----	----	----	----	----	----	----	----	----	----*
+ *----									----*
+ *----	Version 1.0					Joseph Phillips	----*
+ *----									----*
+ *--------------------------------------------------------------------------*/
+
+
+#include	<stdlib.h>
+#include	<stdio.h>
+#include	"sortHeader.h"
+
+
+#define		ARRAY_LEN	65536
+#define		TEXT_LEN	16
+
+int		array[ARRAY_LEN];
+
+
+//  PURPOSE:  To initialize array 'array[]' of length 'arrayLen' with (pseudo-)
+//	random values.  No return value.
+void		initializeArray	(int		arrayLen,
+				 int*		array
+				)
+{
+  //  I.  Application validity check:
+
+  //  II.  Give 'array[]' random values.
+  int	i;
+
+  for  (i = 0;  i < arrayLen;  i++)
+    array[i] = rand() % 1024;
+
+  //  III.  Finished:
+}
+
+
+
+//  PURPOSE:  To exchange the element at index 'i' with that at index 'j' in
+//	array 'array'.  No return value.
+void		exchange	(int*		array,
+				 int		i,
+				 int		j
+				)
+{
+  //  I.  Application validity check:
+
+  //  II.  Do exchange:
+  int	temp	= array[i];
+
+  array[i]	= array[j];
+  array[j]	= temp;
+
+  //  III.  Finished:
+}
+
+
+//  PURPOSE:  To run the integer-sorting program.  Ignores command line
+//	arguments.  Returns 'EXIT_SUCCESS' to OS.
+int		main		()
+{
+  initializeArray(ARRAY_LEN,array);
+
+  int	choice;
+
+  do
+  {
+    char	text[TEXT_LEN];
+
+    printf
+	("How would you like to sort %d integers:\n"
+	 "1: Insertion-sort\n"
+	 "2: Bubble-sort\n"
+	 "Your choice? ",
+	 ARRAY_LEN
+	);
+    fgets(text,TEXT_LEN,stdin);
+    choice = atoi(text);
+  }
+  while  ( (choice < 1) || (choice > 2) );
+
+  switch  (choice)
+  {
+  case 1 :
+    insertionSort(ARRAY_LEN,array);
+    break;
+  case 2 :
+    bubbleSort(ARRAY_LEN,array);
+    break;
+  }
+
+  int i;
+
+  for (i = 0;  i < ARRAY_LEN;  i++)
+    printf("%d\n",array[i]);
+
+  return(EXIT_SUCCESS);
+}
+	  
+Header files (20 Points):
+Hey! Ain't something missing!?!
+Yeah, that is right. There is no sortHeader.h.
+
+Please write one so that you can compile the program! Please be sure to declare only what is needed in common.
+
+Timing: Part 1 (20 Points):
+Compile and run the program without any extra optimizations, but with profiling for timing:
+gcc -c -pg -O0 bubbleSort.c
+gcc -c -pg -O0 insertionSort.c
+gcc -c -pg -O0 sortProg.c
+gcc bubbleSort.o insertionSort.o sortProg.o -pg -O0 -o sortO0
+Run the program twice timing it both times, and answer the following:
+./sortO0
+How would you like to sort 65536 integers:
+1: Insertion-sort
+2: Bubble-sort
+Your choice? 1
+insertionSort() self seconds	_____________
+./sortO0 
+How would you like to sort 65536 integers:
+1: Insertion-sort
+2: Bubble-sort
+Your choice? 2
+bubbleSort() self seconds	_____________
+Timing: Part 2 (20 Points):
+Compile and run the program with optimization, but with profiling for timing:
+gcc -c -pg -O2 bubbleSort.c
+gcc -c -pg -O2 insertionSort.c
+gcc -c -pg -O2 sortProg.c
+gcc bubbleSort.o insertionSort.o sortProg.o -pg -O2 -o sortO2
+Run the program twice timing it both times, and answer the following:
+./sortO2
+How would you like to sort 65536 integers:
+1: Insertion-sort
+2: Bubble-sort
+Your choice? 1
+insertionSort() self seconds	_____________
+./sortO2 
+How would you like to sort 65536 integers:
+1: Insertion-sort
+2: Bubble-sort
+Your choice? 2
+bubbleSort() self seconds	_____________
+Algorithm choice vs. Compiler optimization (Points 10):
+Which is faster?
+A bad algorithm and data-structure optimized with -O2
+A good algorithm and data-structure optimized with -O0
+Parts of an executable (Points 20):
+Please find the following inside of sortO0, either by using objdump (if it exists in the executable) or by disassembling the code and showing where the code manipulates the heap or stack. Show a disassembly or objdump.
+The string "%d\n" in main()
+The local variable haveExchanged in bubbleSort()
+The global variable array[] in sortProg.c
+The code for insertionSort()
+Question	Command	Result
+(A)	______________________	
+
+
+
+
+
+
+________________________________ 
+(B)	______________________	
+
+
+
+
+
+
+________________________________ 
+(C)	______________________	
+
+
+
+
+
+
+________________________________ 
+(D)	______________________	
+
+
+
+
+
+
+________________________________ 
+Compiler optimizations (Points 10):
+Find and show at least 2 examples (total) of the following optimizations in either sortO0 or sortO2.
